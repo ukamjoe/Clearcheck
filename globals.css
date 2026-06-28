@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #06080D;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(14,190,140,0.06), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(14,190,140,0.04), transparent 45%);
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.status-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes sweep {
+  0% { top: -5%; }
+  50% { top: 60%; }
+  100% { top: -5%; }
+}
+.scan-line {
+  animation: sweep 4s ease-in-out infinite;
+}
+
+@keyframes spin-radar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.radar-sweep {
+  animation: spin-radar 2.2s linear infinite;
+}
