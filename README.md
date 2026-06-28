@@ -24,6 +24,28 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
+### Pushing to GitHub
+
+This folder already has a git repository initialized with one commit (run
+`git log` to confirm) — there's no need to run `git init` again. GitHub's
+web "Add file → Upload files" button does **not** accept `.zip` archives;
+upload the extracted folder's contents that way only if you must use the
+browser, but the reliable path is pushing with git directly:
+
+```bash
+# 1. Create a new EMPTY repository on github.com first
+#    (do not initialize it with a README, .gitignore, or license)
+
+# 2. From inside this extracted folder:
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git push -u origin main
+```
+
+That's it — no `git init`, no `git add`, no `git commit` needed, those are
+already done. If `git remote add origin` fails with "remote origin already
+exists" (e.g. you're retrying), run `git remote set-url origin <url>`
+instead.
+
 ### Required environment variables
 
 See `.env.example` for the full list with comments. Summary:
@@ -147,9 +169,21 @@ have never actually been run. Before deploying:
 
 ### Known likely issues to check first
 
-- `src/middleware.ts` uses the Next.js 14 App Router middleware pattern for
-  Supabase SSR — this pattern has had breaking changes across `@supabase/ssr`
-  versions; verify against the version actually installed.
+- **Vercel deploy error: "Edge Function middleware is referencing unsupported
+  modules: @supabase/ssr, next/server"** — this is a confirmed upstream bug,
+  not an error in this codebase. `@supabase/supabase-js` versions 2.52.1+
+  (and separately, some `@supabase/realtime-js` import paths) access
+  `process.version` in a way that Next.js's Edge Runtime static analysis
+  flags as unsupported, even though the code is guarded and never actually
+  runs on Edge. See
+  [supabase-js#1515](https://github.com/supabase/supabase-js/issues/1515)
+  and [supabase-js#1552](https://github.com/supabase/supabase-js/issues/1552).
+  **Fix already applied here:** `package.json` pins `@supabase/supabase-js`
+  to `2.49.4` (pre-bug) both as a direct dependency and via `overrides`, so
+  npm can't silently resolve a newer transitive copy through `@supabase/ssr`.
+  If you upgrade either package later, re-test a Vercel deploy before
+  trusting it — the bug has resurfaced across multiple version ranges as of
+  late 2025.
 - `jsPDF`'s `splitTextToSize` and page-break math in `documentToPdf.ts` is
   hand-rolled; test with a long real Claude-generated document (the breach
   response plan tends to be the longest) to make sure pagination looks right.
